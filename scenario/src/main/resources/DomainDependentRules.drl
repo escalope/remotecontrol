@@ -1,0 +1,62 @@
+/*
+    Copyright (C) 2015 Jorge Gomez Sanz
+
+    This file is part of NormMonitor a monitoring solution system for PHAT infrastructure, 
+    and availabe at https://github.com/escalope/NormMonitor. 
+
+    The NormMonitor is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    INGENIAS Agent Framework is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with NormMonitor; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+ */
+
+package sociaal;
+
+dialect "mvel"
+
+import jade.lang.acl.ACLMessage;
+import jade.domain.introspection.Event;
+import phat.agents.AgentPHATEvent;
+import phat.body.BodyUtils.BodyPosture;
+import phat.world.MonitorEventQueue;
+import phat.world.MonitorEventQueueImp;
+import phat.world.PHATCalendar;
+import sociaal.*;
+import sociaal.ontology.*;
+import sociaal.*;
+
+/*******************************************************/
+// transforming events into meaningful institutional facts
+/*******************************************************/
+
+rule "initDomainDependent"
+when
+then
+	insert(new Assisting("AndroidTVRemote1","Elder","TV", NormativeSystem.getElapsedSimTimeSeconds()));
+	insert(new Assisting("AndroidTV1","Elder", "TV",NormativeSystem.getElapsedSimTimeSeconds()));
+	insert( new AgentPartner("AndroidTV1",NormativeSystem.getElapsedSimTimeSeconds()))  ;
+	insert( new AgentPartner("AndroidTVRemote1",NormativeSystem.getElapsedSimTimeSeconds()))  ;
+	NormPerformanceDisplay.getInstance().addPartner("AndroidTVRemote1");
+	NormPerformanceDisplay.getInstance().addPartner("AndroidTV1");
+	
+end
+
+rule "countas: pressed channel"
+    salience 100
+    when
+        $c1 : ACLMessage(sender.getLocalName().startsWith("AndroidTVRemote1"), content.startsWith("C"))
+    then       
+        insertLogical(new ActionPerformed($c1.getSender().getLocalName(),"channelswitch","TV",NormativeSystem.getElapsedSimTimeSeconds())); 
+        System.out.println("insertado 2.......");
+        
+end
